@@ -1,0 +1,10 @@
+/root/custom/target/release/deps/libsolana_config_program-434bb922ae611ce9.rmeta: /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/lib.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/config_instruction.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/config_processor.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/date_instruction.rs
+
+/root/custom/target/release/deps/libsolana_config_program-434bb922ae611ce9.rlib: /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/lib.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/config_instruction.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/config_processor.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/date_instruction.rs
+
+/root/custom/target/release/deps/solana_config_program-434bb922ae611ce9.d: /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/lib.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/config_instruction.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/config_processor.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/date_instruction.rs
+
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/lib.rs:
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/config_instruction.rs:
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/config_processor.rs:
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/solana-config-program-1.18.17/src/date_instruction.rs:

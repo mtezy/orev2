@@ -1,0 +1,14 @@
+/root/custom/target/release/deps/libcaps-26104b698e760349.rmeta: /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/lib.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/errors.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/runtime.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/securebits.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/ambient.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/base.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/bounding.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/nr.rs
+
+/root/custom/target/release/deps/libcaps-26104b698e760349.rlib: /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/lib.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/errors.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/runtime.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/securebits.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/ambient.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/base.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/bounding.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/nr.rs
+
+/root/custom/target/release/deps/caps-26104b698e760349.d: /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/lib.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/errors.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/runtime.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/securebits.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/ambient.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/base.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/bounding.rs /root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/nr.rs
+
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/lib.rs:
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/errors.rs:
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/runtime.rs:
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/securebits.rs:
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/ambient.rs:
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/base.rs:
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/bounding.rs:
+/root/.cargo/registry/src/index.crates.io-6f17d22bba15001f/caps-0.5.5/src/nr.rs:
