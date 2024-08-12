@@ -17,6 +17,8 @@ use solana_sdk::signer::Signer;
 use reqwest::Client;
 use serde_json::json;
 use chrono::Utc;
+use std::cell::RefCell;
+use futures::stream::{self, StreamExt};
 
 use crate::{
     args::MineArgs,
@@ -27,7 +29,7 @@ use crate::{
     Miner,
 };
 
-const DISCORD_WEBHOOK_URL: &str = "xxxxxxxxx"; // Replace with your Discord webhook URL
+const DISCORD_WEBHOOK_URL: &str = "xxxxxxxxxxxxxxx"; // Replace with your Discord webhook URL
 
 impl Miner {
     pub async fn mine(&self, args: MineArgs) {
@@ -118,6 +120,11 @@ impl Miner {
             .map(|i| (nonce_step * i as u64, nonce_step * (i as u64 + 1)))
             .collect();
 
+        // Thread-local storage for SolverMemory
+        thread_local! {
+            static SOLVER_MEMORY: RefCell<equix::SolverMemory> = RefCell::new(equix::SolverMemory::new());
+        }
+
         // Spawn threads for each logical core
         let handles: Vec<_> = nonce_ranges.into_iter()
             .enumerate()
@@ -126,7 +133,6 @@ impl Miner {
                 let global_best_difficulty = Arc::clone(&global_best_difficulty);
                 std::thread::spawn({
                     let proof = proof.clone();
-                    let mut memory = equix::SolverMemory::new();
                     move || {
                         // Pin to core
                         let core_ids = core_affinity::get_core_ids().unwrap();
@@ -139,36 +145,41 @@ impl Miner {
                         let mut best_nonce = nonce;
                         let mut best_difficulty = 0;
                         let mut best_hash = Hash::default();
-                        while nonce < end_nonce {
-                            // Create hash
-                            if let Ok(hx) = drillx::hash_with_memory(
-                                &mut memory,
-                                &proof.challenge,
-                                &nonce.to_le_bytes(),
-                            ) {
-                                let difficulty = hx.difficulty();
-                                if difficulty > best_difficulty {
-                                    best_nonce = nonce;
-                                    best_difficulty = difficulty;
-                                    best_hash = hx;
-                                    // Update global best difficulty
-                                    let mut best_diff_lock = global_best_difficulty.write().unwrap();
-                                    *best_diff_lock = best_difficulty;
+                        SOLVER_MEMORY.with(|memory| {
+                            let mut memory = memory.borrow_mut();
+                            while nonce < end_nonce {
+                                // Create hash
+                                if let Ok(hx) = drillx::hash_with_memory(
+                                    &mut memory,
+                                    &proof.challenge,
+                                    &nonce.to_le_bytes(),
+                                ) {
+                                    let difficulty = hx.difficulty();
+                                    if difficulty > best_difficulty {
+                                        best_nonce = nonce;
+                                        best_difficulty = difficulty;
+                                        best_hash = hx;
+                                        // Update global best difficulty
+                                        let mut best_diff_lock = global_best_difficulty.write().unwrap();
+                                        if best_difficulty > *best_diff_lock {
+                                            *best_diff_lock = best_difficulty;
+                                        }
+                                    }
                                 }
-                            }
-                            global_total_hashes.fetch_add(1, Ordering::Relaxed);
+                                global_total_hashes.fetch_add(1, Ordering::Relaxed);
 
-                            // Exit if time has elapsed
-                            if start_time.elapsed().as_secs() >= cutoff_time {
-                                let best_diff_lock = global_best_difficulty.read().unwrap();
-                                if *best_diff_lock >= min_difficulty {
-                                    break;
+                                // Exit if time has elapsed
+                                if start_time.elapsed().as_secs() >= cutoff_time {
+                                    let best_diff_lock = global_best_difficulty.read().unwrap();
+                                    if *best_diff_lock >= min_difficulty {
+                                        break;
+                                    }
                                 }
-                            }
 
-                            // Increment nonce
-                            nonce += 1;
-                        }
+                                // Increment nonce
+                                nonce += 1;
+                            }
+                        });
 
                         // Return the best nonce
                         (best_nonce, best_difficulty, best_hash)
@@ -218,40 +229,54 @@ impl Miner {
     }
 
     async fn should_reset(&self, config: Config) -> bool {
-        let clock = get_clock(&self.rpc_client).await;
-        config
-            .last_reset_at
-            .saturating_add(EPOCH_DURATION)
-            .saturating_sub(5) // Buffer
-            .le(&clock.unix_timestamp)
+        if let Some(clock) = get_clock(&self.rpc_client).await {
+            config
+                .last_reset_at
+                .saturating_add(EPOCH_DURATION)
+                .saturating_sub(5) // Buffer
+                .le(&clock.unix_timestamp)
+        } else {
+            false
+        }
     }
 
     async fn get_cutoff(&self, proof: Proof, buffer_time: u64) -> u64 {
-        let clock = get_clock(&self.rpc_client).await;
-        proof
-            .last_hash_at
-            .saturating_add(60)
-            .saturating_sub(buffer_time as i64)
-            .saturating_sub(clock.unix_timestamp)
-            .max(0) as u64
+        if let Some(clock) = get_clock(&self.rpc_client).await {
+            proof
+                .last_hash_at
+                .saturating_add(60)
+                .saturating_sub(buffer_time as i64)
+                .saturating_sub(clock.unix_timestamp)
+                .max(0) as u64
+        } else {
+            60 // Default cutoff time if clock retrieval fails
+        }
     }
 
     async fn find_bus(&self) -> Pubkey {
         // Fetch the bus with the largest balance
         if let Ok(accounts) = self.rpc_client.get_multiple_accounts(&BUS_ADDRESSES).await {
-            let mut top_bus_balance: u64 = 0;
-            let mut top_bus = BUS_ADDRESSES[0];
-            for account in accounts {
-                if let Some(account) = account {
-                    if let Ok(bus) = Bus::try_from_bytes(&account.data) {
-                        if bus.rewards.gt(&top_bus_balance) {
-                            top_bus_balance = bus.rewards;
-                            top_bus = BUS_ADDRESSES[bus.id as usize];
+            let top_bus = Arc::new(RwLock::new((0u64, BUS_ADDRESSES[0])));
+
+            // Process accounts in parallel
+            stream::iter(accounts)
+                .for_each_concurrent(None, |account| {
+                    let top_bus = Arc::clone(&top_bus);
+                    async move {
+                        if let Some(account) = account {
+                            if let Ok(bus) = Bus::try_from_bytes(&account.data) {
+                                let mut top_bus_lock = top_bus.write().unwrap();
+                                if bus.rewards > top_bus_lock.0 {
+                                    *top_bus_lock = (bus.rewards, BUS_ADDRESSES[bus.id as usize]);
+                                }
+                            }
                         }
                     }
-                }
-            }
-            return top_bus;
+                })
+                .await;
+
+            let top_bus_lock = top_bus.read().unwrap();
+            return top_bus_lock.1;
         }
 
         // Otherwise return a random bus
