@@ -42,14 +42,21 @@ pub async fn get_proof(client: &RpcClient, address: Pubkey) -> Proof {
     *Proof::try_from_bytes(&data).expect("Failed to parse miner account")
 }
 
-pub async fn get_clock(client: &RpcClient) -> Clock {
-    let data = client
-        .get_account_data(&sysvar::clock::ID)
-        .await
-        .expect("Failed to get miner account");
-    bincode::deserialize::<Clock>(&data).expect("Failed to deserialize clock")
+pub async fn get_clock(client: &RpcClient) -> Option<Clock> {
+    match client.get_account_data(&sysvar::clock::ID).await {
+        Ok(data) => match bincode::deserialize::<Clock>(&data) {
+            Ok(clock) => Some(clock),
+            Err(_) => {
+                eprintln!("Failed to deserialize clock");
+                None
+            }
+        },
+        Err(_) => {
+            eprintln!("Failed to get clock account");
+            None
+        }
+    }
 }
-
 pub fn amount_u64_to_string(amount: u64) -> String {
     amount_u64_to_f64(amount).to_string()
 }
